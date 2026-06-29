@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flame/collisions.dart';
 //import 'package:flutter/foundation.dart';
+import '../managers/game_manager.dart';
 
 class EnemyComponent extends PositionComponent with CollisionCallbacks {
   int randomLane = Random().nextInt(3);
@@ -70,6 +71,8 @@ class EnemyComponent extends PositionComponent with CollisionCallbacks {
 
     hasCollided = true;
 
-    debugPrint("💥 Collision Detected!");
+    GameManager.instance.damagePlayer(25);
+
+    debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
   }
 }

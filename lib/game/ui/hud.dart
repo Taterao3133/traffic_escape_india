@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import '../managers/game_manager.dart';
 
 class Hud extends PositionComponent {
   late TextComponent scoreText;
@@ -64,6 +65,6 @@ class Hud extends PositionComponent {
     travelDistance += dt * 0.08;
 
     distanceText.text = "Distance : ${travelDistance.toStringAsFixed(2)} KM";
-    healthText.text = "Health : $health";
+    healthText.text = "❤️ Health : ${GameManager.instance.playerHealth}%";
   }
 }
