@@ -34,6 +34,9 @@ class EnemyComponent extends PositionComponent with CollisionCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
+    if (GameManager.instance.isGameOver) {
+      return;
+    }
 
     position.y += speed * dt;
 

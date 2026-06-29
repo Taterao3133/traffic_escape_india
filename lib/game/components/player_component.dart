@@ -1,15 +1,18 @@
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 //import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flame/effects.dart';
+
 import '../config/game_config.dart';
-import 'package:flame/collisions.dart';
+import '../managers/game_manager.dart';
 
 class PlayerComponent extends PositionComponent
     with HasGameReference<FlameGame>, KeyboardHandler, CollisionCallbacks {
   int currentLane = 1;
+
   Color playerColor = Colors.orange;
 
   late List<double> lanePositions;
@@ -23,6 +26,7 @@ class PlayerComponent extends PositionComponent
     position = Vector2(0, game.size.y - GameConfig.playerBottomPadding);
 
     moveToLane();
+
     add(RectangleHitbox());
 
     await super.onLoad();
@@ -45,8 +49,17 @@ class PlayerComponent extends PositionComponent
     });
   }
 
+  void takeDamage() {
+    flashDamage();
+  }
+
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    // Stop movement when Game Over
+    if (GameManager.instance.isGameOver) {
+      return false;
+    }
+
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         if (currentLane > 0) {
@@ -69,15 +82,23 @@ class PlayerComponent extends PositionComponent
   }
 
   @override
+  void update(double dt) {
+    super.update(dt);
+
+    // Future player logic goes here.
+    // Example:
+    // Speed Boost
+    // Nitro
+    // Magnet
+    // Shield
+  }
+
+  @override
   void render(Canvas canvas) {
     super.render(canvas);
 
     final paint = Paint()..color = playerColor;
 
     canvas.drawRect(size.toRect(), paint);
-  }
-
-  void takeDamage() {
-    flashDamage();
   }
 }

@@ -6,6 +6,7 @@ class Hud extends PositionComponent {
   late TextComponent scoreText;
   late TextComponent distanceText;
   late TextComponent healthText;
+  late TextComponent gameOverText;
 
   int score = 0;
   double travelDistance = 0;
@@ -51,6 +52,19 @@ class Hud extends PositionComponent {
       ),
     );
     add(healthText);
+    gameOverText = TextComponent(
+      text: "",
+      position: Vector2(220, 300),
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.red,
+          fontSize: 48,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+
+    add(gameOverText);
 
     await super.onLoad();
   }
@@ -58,6 +72,9 @@ class Hud extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
+    if (GameManager.instance.isGameOver) {
+      return;
+    }
 
     score += (dt * 100).toInt();
 
@@ -66,5 +83,9 @@ class Hud extends PositionComponent {
 
     distanceText.text = "Distance : ${travelDistance.toStringAsFixed(2)} KM";
     healthText.text = "❤️ Health : ${GameManager.instance.playerHealth}%";
+
+    if (GameManager.instance.isGameOver) {
+      gameOverText.text = "GAME OVER";
+    }
   }
 }

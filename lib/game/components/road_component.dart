@@ -1,8 +1,8 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import '../managers/game_manager.dart';
 
 class RoadComponent extends PositionComponent {
-
   double lineOffset = 0;
 
   @override
@@ -16,6 +16,9 @@ class RoadComponent extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
+    if (GameManager.instance.isGameOver) {
+      return;
+    }
 
     lineOffset += 300 * dt;
 
@@ -28,8 +31,7 @@ class RoadComponent extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    final roadPaint = Paint()
-      ..color = Colors.grey.shade800;
+    final roadPaint = Paint()..color = Colors.grey.shade800;
 
     canvas.drawRect(size.toRect(), roadPaint);
 
@@ -41,18 +43,9 @@ class RoadComponent extends PositionComponent {
     final lane2 = (size.x / 3) * 2;
 
     for (double y = -80 + lineOffset; y < size.y; y += 80) {
+      canvas.drawLine(Offset(lane1, y), Offset(lane1, y + 40), lanePaint);
 
-      canvas.drawLine(
-        Offset(lane1, y),
-        Offset(lane1, y + 40),
-        lanePaint,
-      );
-
-      canvas.drawLine(
-        Offset(lane2, y),
-        Offset(lane2, y + 40),
-        lanePaint,
-      );
+      canvas.drawLine(Offset(lane2, y), Offset(lane2, y + 40), lanePaint);
     }
   }
 }
