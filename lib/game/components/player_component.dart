@@ -45,6 +45,17 @@ class PlayerComponent extends SpriteComponent
     );
   }
 
+  void resetPlayer() {
+    currentLane = 1;
+
+    position = Vector2(
+      lanePositions[currentLane],
+      game.size.y - GameConfig.playerBottomPadding,
+    );
+
+    removeWhere((component) => component is MoveEffect);
+  }
+
   // void flashDamage() {
   //   playerColor = Colors.red;
 
@@ -71,6 +82,15 @@ class PlayerComponent extends SpriteComponent
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     // Stop movement when Game Over
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyR) {
+      GameManager.instance.restart();
+
+      resetPlayer();
+
+      debugPrint("Game Restarted");
+
+      return true;
+    }
     if (GameManager.instance.isGameOver) {
       return false;
     }

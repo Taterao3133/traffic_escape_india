@@ -7,6 +7,7 @@ import 'components/enemy_component.dart';
 //import 'package:flame/collisions.dart';
 //import 'managers/enemy_manager.dart';
 //import 'managers/game_manager.dart';
+import 'package:flutter/services.dart';
 import 'managers/spawn_manager.dart';
 import 'ui/hud.dart';
 
@@ -29,4 +30,16 @@ class TrafficGame extends FlameGame
 
     await super.onLoad();
   }
+
+  // @override
+  // KeyEventResult onKeyEvent(
+  //   KeyEvent event,
+  //   Set<LogicalKeyboardKey> keysPressed,
+  // ) {
+  //   if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyR) {
+  //     debugPrint("Restart Pressed");
+  //   }
+
+  //   return KeyEventResult.handled;
+  // }
 }

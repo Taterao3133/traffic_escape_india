@@ -39,6 +39,7 @@ class GameManager {
   int playerHealth = 100;
 
   int score = 0;
+  double distance = 0;
 
   bool isGameOver = false;
 
@@ -59,6 +60,7 @@ class GameManager {
   void restart() {
     playerHealth = 100;
     score = 0;
+    distance = 0;
     isGameOver = false;
   }
 }

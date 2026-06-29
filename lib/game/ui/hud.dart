@@ -8,7 +8,7 @@ class Hud extends PositionComponent {
   late TextComponent healthText;
   late TextComponent gameOverText;
 
-  int score = 0;
+  // int score = 0;
   double travelDistance = 0;
   int health = 100;
 
@@ -69,19 +69,52 @@ class Hud extends PositionComponent {
     await super.onLoad();
   }
 
+  //   @override
+  //   void update(double dt) {
+  //     super.update(dt);
+  //     if (GameManager.instance.isGameOver) {
+  //       return;
+  //     }
+
+  //     // score += (dt * 100).toInt();
+  //     GameManager.instance.score += (dt * 100).toInt();
+
+  //     scoreText.text = "Score : ${GameManager.instance.score}";
+
+  //     // scoreText.text = "Score : $score";
+  //     if (GameManager.instance.score == 0 &&
+  //         GameManager.instance.playerHealth == 100 &&
+  //         travelDistance > 0) {
+  //       travelDistance = 0;
+  //     }
+  //     GameManager.instance.distance += dt * 0.08;
+
+  //     distanceText.text =
+  //         "Distance : ${GameManager.instance.distance.toStringAsFixed(2)} KM";
+  //     healthText.text = "❤️ Health : ${GameManager.instance.playerHealth}%";
+
+  //     if (GameManager.instance.isGameOver) {
+  //       gameOverText.text = "GAME OVER";
+  //     }
+  //   }
+  // }
+
   @override
   void update(double dt) {
     super.update(dt);
+
     if (GameManager.instance.isGameOver) {
       return;
     }
 
-    score += (dt * 100).toInt();
+    GameManager.instance.score += (dt * 100).toInt();
+    GameManager.instance.distance += dt * 0.08;
 
-    scoreText.text = "Score : $score";
-    travelDistance += dt * 0.08;
+    scoreText.text = "Score : ${GameManager.instance.score}";
 
-    distanceText.text = "Distance : ${travelDistance.toStringAsFixed(2)} KM";
+    distanceText.text =
+        "Distance : ${GameManager.instance.distance.toStringAsFixed(2)} KM";
+
     healthText.text = "❤️ Health : ${GameManager.instance.playerHealth}%";
 
     if (GameManager.instance.isGameOver) {

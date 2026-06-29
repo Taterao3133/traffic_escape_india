@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flame/collisions.dart';
 //import 'package:flutter/foundation.dart';
-import 'package:flame/flame.dart';
+//import 'package:flame/flame.dart';
 import '../managers/game_manager.dart';
 import 'player_component.dart';
 
@@ -33,22 +33,27 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     switch (randomSprite) {
       case 'cars/sedan.png':
         size = Vector2(170, 260);
+        speed = 400;
         break;
 
       case 'cars/taxi.png':
         size = Vector2(170, 260);
+        speed = 400;
         break;
 
       case 'cars/police_suv.png':
         size = Vector2(185, 280);
+        speed = 500;
         break;
 
       case 'cars/city_bus.png':
         size = Vector2(240, 420);
+        speed = 200;
         break;
 
       case 'cars/auto_rickshaw.png':
         size = Vector2(145, 220);
+        speed = 350;
         break;
     }
 
@@ -72,7 +77,14 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
       return;
     }
 
-    position.y += speed * dt;
+    // position.y += speed * dt;
+    double difficultyMultiplier = 1 + (GameManager.instance.score / 1000);
+
+    if (difficultyMultiplier > 2.5) {
+      difficultyMultiplier = 2.5;
+    }
+
+    position.y += speed * difficultyMultiplier * dt;
 
     if (position.y > findGame()!.size.y) {
       //    removeFromParent();
