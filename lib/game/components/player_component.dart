@@ -10,6 +10,7 @@ import 'package:flame/collisions.dart';
 class PlayerComponent extends PositionComponent
     with HasGameReference<FlameGame>, KeyboardHandler, CollisionCallbacks {
   int currentLane = 1;
+  Color playerColor = Colors.orange;
 
   late List<double> lanePositions;
 
@@ -34,6 +35,14 @@ class PlayerComponent extends PositionComponent
         EffectController(duration: GameConfig.laneChangeDuration),
       ),
     );
+  }
+
+  void flashDamage() {
+    playerColor = Colors.red;
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      playerColor = Colors.orange;
+    });
   }
 
   @override
@@ -63,8 +72,12 @@ class PlayerComponent extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
 
-    final paint = Paint()..color = Colors.orange;
+    final paint = Paint()..color = playerColor;
 
     canvas.drawRect(size.toRect(), paint);
+  }
+
+  void takeDamage() {
+    flashDamage();
   }
 }

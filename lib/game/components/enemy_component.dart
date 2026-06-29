@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 //import 'package:flutter/foundation.dart';
 import '../managers/game_manager.dart';
+import 'player_component.dart';
 
 class EnemyComponent extends PositionComponent with CollisionCallbacks {
   int randomLane = Random().nextInt(3);
@@ -63,16 +64,32 @@ class EnemyComponent extends PositionComponent with CollisionCallbacks {
     canvas.drawRect(size.toRect(), paint);
   }
 
+  // @override
+  // void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+  //   super.onCollision(intersectionPoints, other);
+
+  //   if (hasCollided) return;
+
+  //   hasCollided = true;
+
+  //   GameManager.instance.damagePlayer(25);
+
+  //   debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
+  // }
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
     if (hasCollided) return;
 
-    hasCollided = true;
+    if (other is PlayerComponent) {
+      hasCollided = true;
 
-    GameManager.instance.damagePlayer(25);
+      GameManager.instance.damagePlayer(25);
 
-    debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
+      other.takeDamage();
+
+      debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
+    }
   }
 }
