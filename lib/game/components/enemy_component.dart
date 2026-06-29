@@ -3,20 +3,54 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flame/collisions.dart';
 //import 'package:flutter/foundation.dart';
+import 'package:flame/flame.dart';
 import '../managers/game_manager.dart';
 import 'player_component.dart';
 
-class EnemyComponent extends PositionComponent with CollisionCallbacks {
+class EnemyComponent extends SpriteComponent with CollisionCallbacks {
+  EnemyComponent() {
+    anchor = Anchor.center;
+  }
   int randomLane = Random().nextInt(3);
   final random = Random(); //old random lane generation
   static int lastLane = -1;
   late List<double> lanePositions;
   double speed = 400;
   bool hasCollided = false;
+  static final List<String> vehicleSprites = [
+    'cars/sedan.png',
+    'cars/taxi.png',
+    'cars/police_suv.png',
+    'cars/city_bus.png',
+    'cars/auto_rickshaw.png',
+  ];
   @override
   Future<void> onLoad() async {
     debugPrint("Enemy Loaded");
-    size = Vector2(110, 180);
+    final randomSprite = vehicleSprites[random.nextInt(vehicleSprites.length)];
+
+    sprite = await Sprite.load(randomSprite);
+    switch (randomSprite) {
+      case 'cars/sedan.png':
+        size = Vector2(170, 260);
+        break;
+
+      case 'cars/taxi.png':
+        size = Vector2(170, 260);
+        break;
+
+      case 'cars/police_suv.png':
+        size = Vector2(185, 280);
+        break;
+
+      case 'cars/city_bus.png':
+        size = Vector2(240, 420);
+        break;
+
+      case 'cars/auto_rickshaw.png':
+        size = Vector2(145, 220);
+        break;
+    }
 
     lanePositions = [150, 335, 520];
 
@@ -58,14 +92,14 @@ class EnemyComponent extends PositionComponent with CollisionCallbacks {
     }
   }
 
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
+  // @override
+  // void render(Canvas canvas) {
+  //   super.render(canvas);
 
-    final paint = Paint()..color = Colors.green;
+  //   final paint = Paint()..color = Colors.green;
 
-    canvas.drawRect(size.toRect(), paint);
-  }
+  //   canvas.drawRect(size.toRect(), paint);
+  // }
 
   // @override
   // void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
