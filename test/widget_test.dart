@@ -1,30 +1,19 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:traffic_escape_india/main.dart';
+import 'package:traffic_escape_india/game/config/game_config.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('lane centers stay evenly spaced inside the road', () {
+    const screenWidth = 720.0;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    final lanes = GameConfig.laneCenters(screenWidth);
+    final roadLeft = GameConfig.roadLeft(screenWidth);
+    final roadRight = GameConfig.roadRight(screenWidth);
+    final laneWidth = GameConfig.laneWidth(screenWidth);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(lanes, hasLength(GameConfig.laneCount));
+    expect(lanes.first, greaterThan(roadLeft));
+    expect(lanes.last, lessThan(roadRight));
+    expect(lanes[1] - lanes[0], closeTo(laneWidth, 0.001));
+    expect(lanes[2] - lanes[1], closeTo(laneWidth, 0.001));
   });
 }

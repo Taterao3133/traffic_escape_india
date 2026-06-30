@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 //import 'package:flutter/foundation.dart';
 //import 'package:flame/flame.dart';
+import '../config/game_config.dart';
 import '../managers/game_manager.dart';
 import 'player_component.dart';
 
@@ -27,7 +28,21 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   @override
   Future<void> onLoad() async {
     debugPrint("Enemy Loaded");
-    final randomSprite = vehicleSprites[random.nextInt(vehicleSprites.length)];
+    int chance = random.nextInt(100);
+
+    String randomSprite;
+
+    if (chance < 35) {
+      randomSprite = 'cars/sedan.png';
+    } else if (chance < 60) {
+      randomSprite = 'cars/taxi.png';
+    } else if (chance < 80) {
+      randomSprite = 'cars/auto_rickshaw.png';
+    } else if (chance < 90) {
+      randomSprite = 'cars/police_suv.png';
+    } else {
+      randomSprite = 'cars/city_bus.png';
+    }
 
     sprite = await Sprite.load(randomSprite);
     switch (randomSprite) {
@@ -57,7 +72,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         break;
     }
 
-    lanePositions = [150, 335, 520];
+    lanePositions = GameConfig.laneCenters(findGame()!.size.x);
 
     if (position == Vector2.zero()) {
       position = Vector2(

@@ -54,11 +54,12 @@ class Hud extends PositionComponent {
     add(healthText);
     gameOverText = TextComponent(
       text: "",
-      position: Vector2(220, 300),
+      anchor: Anchor.center,
+      position: Vector2(findGame()!.size.x / 2, findGame()!.size.y * 0.45),
       textRenderer: TextPaint(
         style: const TextStyle(
           color: Colors.red,
-          fontSize: 48,
+          fontSize: 34,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -69,46 +70,17 @@ class Hud extends PositionComponent {
     await super.onLoad();
   }
 
-  //   @override
-  //   void update(double dt) {
-  //     super.update(dt);
-  //     if (GameManager.instance.isGameOver) {
-  //       return;
-  //     }
-
-  //     // score += (dt * 100).toInt();
-  //     GameManager.instance.score += (dt * 100).toInt();
-
-  //     scoreText.text = "Score : ${GameManager.instance.score}";
-
-  //     // scoreText.text = "Score : $score";
-  //     if (GameManager.instance.score == 0 &&
-  //         GameManager.instance.playerHealth == 100 &&
-  //         travelDistance > 0) {
-  //       travelDistance = 0;
-  //     }
-  //     GameManager.instance.distance += dt * 0.08;
-
-  //     distanceText.text =
-  //         "Distance : ${GameManager.instance.distance.toStringAsFixed(2)} KM";
-  //     healthText.text = "❤️ Health : ${GameManager.instance.playerHealth}%";
-
-  //     if (GameManager.instance.isGameOver) {
-  //       gameOverText.text = "GAME OVER";
-  //     }
-  //   }
-  // }
-
   @override
   void update(double dt) {
     super.update(dt);
 
-    if (GameManager.instance.isGameOver) {
-      return;
+    // if (GameManager.instance.isGameOver) {
+    //   return;
+    // }
+    if (!GameManager.instance.isGameOver) {
+      GameManager.instance.score += (dt * 100).toInt();
+      GameManager.instance.distance += dt * 0.08;
     }
-
-    GameManager.instance.score += (dt * 100).toInt();
-    GameManager.instance.distance += dt * 0.08;
 
     scoreText.text = "Score : ${GameManager.instance.score}";
 
@@ -118,7 +90,12 @@ class Hud extends PositionComponent {
     healthText.text = "❤️ Health : ${GameManager.instance.playerHealth}%";
 
     if (GameManager.instance.isGameOver) {
-      gameOverText.text = "GAME OVER";
+      gameOverText.text =
+          "💥 GAME OVER\n\n"
+          "Tap to Restart\n"
+          "Press R on Keyboard";
+    } else {
+      gameOverText.text = "";
     }
   }
 }

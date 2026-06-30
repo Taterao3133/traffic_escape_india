@@ -1,8 +1,6 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/events.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,7 +20,7 @@ class PlayerComponent extends SpriteComponent
   Future<void> onLoad() async {
     size = Vector2(220, 320);
     sprite = await Sprite.load('cars/player_car.png');
-    lanePositions = [150, 335, 520];
+    lanePositions = GameConfig.laneCenters(game.size.x);
 
     position = Vector2(
       0,
@@ -45,28 +43,39 @@ class PlayerComponent extends SpriteComponent
     );
   }
 
+  bool moveLeft() {
+    if (GameManager.instance.isGameOver || currentLane <= 0) {
+      return false;
+    }
+
+    currentLane--;
+    moveToLane();
+    return true;
+  }
+
+  bool moveRight() {
+    if (GameManager.instance.isGameOver ||
+        currentLane >= GameConfig.laneCount - 1) {
+      return false;
+    }
+
+    currentLane++;
+    moveToLane();
+    return true;
+  }
+
   void resetPlayer() {
     currentLane = 1;
+    lanePositions = GameConfig.laneCenters(game.size.x);
 
     position = Vector2(
       lanePositions[currentLane],
-      game.size.y - GameConfig.playerBottomPadding,
+      game.size.y - GameConfig.playerBottomPadding - size.y / 2,
     );
 
     removeWhere((component) => component is MoveEffect);
   }
 
-  // void flashDamage() {
-  //   playerColor = Colors.red;
-
-  //   Future.delayed(const Duration(milliseconds: 200), () {
-  //     playerColor = Colors.orange;
-  //   });
-  // }
-
-  // void takeDamage() {
-  //   flashDamage();
-  // }
   void flashDamage() {
     opacity = 0.3;
 
@@ -97,17 +106,11 @@ class PlayerComponent extends SpriteComponent
 
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        if (currentLane > 0) {
-          currentLane--;
-          moveToLane();
-        }
+        moveLeft();
       }
 
       if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        if (currentLane < 2) {
-          currentLane++;
-          moveToLane();
-        }
+        moveRight();
       }
 
       return true;
@@ -115,25 +118,4 @@ class PlayerComponent extends SpriteComponent
 
     return false;
   }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-
-    // Future player logic goes here.
-    // Example:
-    // Speed Boost
-    // Nitro
-    // Magnet
-    // Shield
-  }
-
-  // @override
-  // void render(Canvas canvas) {
-  //   super.render(canvas);
-
-  //   final paint = Paint()..color = playerColor;
-
-  //   canvas.drawRect(size.toRect(), paint);
-  // }
 }
