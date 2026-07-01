@@ -13,10 +13,73 @@ class GameConfig {
 
   static const double sideShoulderWidth = 48;
 
+  static const double roadHorizonRatio = 0.19;
+
+  static const double roadHorizonScale = 0.16;
+
   static double roadWidth(double screenWidth) {
     final availableWidth = screenWidth - (sideShoulderWidth * 2);
 
     return availableWidth.clamp(minRoadWidth, maxRoadWidth).toDouble();
+  }
+
+  static double roadHorizonY(double screenHeight) {
+    return screenHeight * roadHorizonRatio;
+  }
+
+  static double perspectiveDepth(double screenHeight, double y) {
+    final horizonY = roadHorizonY(screenHeight);
+    final normalizedY = ((y - horizonY) / (screenHeight - horizonY)).clamp(
+      0.0,
+      1.0,
+    );
+
+    return normalizedY * normalizedY * (3 - 2 * normalizedY);
+  }
+
+  static double perspectiveScale(double screenHeight, double y) {
+    return roadHorizonScale +
+        perspectiveDepth(screenHeight, y) * (1 - roadHorizonScale);
+  }
+
+  static double roadWidthAtY(
+    double screenWidth,
+    double screenHeight,
+    double y,
+  ) {
+    return roadWidth(screenWidth) * perspectiveScale(screenHeight, y);
+  }
+
+  static double roadLeftAtY(double screenWidth, double screenHeight, double y) {
+    return (screenWidth - roadWidthAtY(screenWidth, screenHeight, y)) / 2;
+  }
+
+  static double roadRightAtY(
+    double screenWidth,
+    double screenHeight,
+    double y,
+  ) {
+    return roadLeftAtY(screenWidth, screenHeight, y) +
+        roadWidthAtY(screenWidth, screenHeight, y);
+  }
+
+  static double laneWidthAtY(
+    double screenWidth,
+    double screenHeight,
+    double y,
+  ) {
+    return roadWidthAtY(screenWidth, screenHeight, y) / laneCount;
+  }
+
+  static double laneCenterAtY(
+    double screenWidth,
+    double screenHeight,
+    int lane,
+    double y,
+  ) {
+    final width = laneWidthAtY(screenWidth, screenHeight, y);
+
+    return roadLeftAtY(screenWidth, screenHeight, y) + width * lane + width / 2;
   }
 
   static double roadLeft(double screenWidth) {
@@ -50,9 +113,11 @@ class GameConfig {
 
   static const double playerBottomPadding = 250;
 
-  static const double laneChangeDuration = 0.18;
+  static const double laneChangeDuration = 0.12;
 
-  static const double minSwipeDistance = 40;
+  static const double minSwipeDistance = 32;
+
+  static const double horizontalSwipeBias = 1.25;
 
   // ----------------------------
   // Enemy

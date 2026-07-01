@@ -20,6 +20,8 @@ class TrafficGame extends FlameGame
         TapCallbacks {
   late PlayerComponent _player;
   double _dragDistanceX = 0;
+  double _dragDistanceY = 0;
+  bool _swipeConsumed = false;
 
   @override
   Future<void> onLoad() async {
@@ -52,29 +54,48 @@ class TrafficGame extends FlameGame
   void onDragStart(DragStartEvent event) {
     super.onDragStart(event);
     _dragDistanceX = 0;
+    _dragDistanceY = 0;
+    _swipeConsumed = false;
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event) {
     super.onDragUpdate(event);
+
+    if (GameManager.instance.isGameOver || _swipeConsumed) {
+      return;
+    }
+
     _dragDistanceX += event.canvasDelta.x;
+    _dragDistanceY += event.canvasDelta.y;
+
+    if (_isHorizontalSwipe()) {
+      _swipeConsumed = true;
+
+      if (_dragDistanceX < 0) {
+        _player.moveLeft();
+      } else {
+        _player.moveRight();
+      }
+    }
   }
 
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
 
-    if (GameManager.instance.isGameOver) {
-      return;
-    }
-
-    if (_dragDistanceX <= -GameConfig.minSwipeDistance) {
-      _player.moveLeft();
-    } else if (_dragDistanceX >= GameConfig.minSwipeDistance) {
-      _player.moveRight();
-    }
-
     _dragDistanceX = 0;
+    _dragDistanceY = 0;
+    _swipeConsumed = false;
+  }
+
+  bool _isHorizontalSwipe() {
+    final horizontalDistance = _dragDistanceX.abs();
+    final verticalDistance = _dragDistanceY.abs();
+
+    return horizontalDistance >= GameConfig.minSwipeDistance &&
+        horizontalDistance >=
+            verticalDistance * GameConfig.horizontalSwipeBias;
   }
 
   @override
