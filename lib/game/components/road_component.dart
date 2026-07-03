@@ -11,7 +11,7 @@ class RoadComponent extends PositionComponent {
   static final Images _terrainImages = Images(prefix: 'assets/');
 
   double lineOffset = 0;
-  late final ui.Image _clearSky;
+  // late final ui.Image _clearSky;
   late final ui.Image _mountainSky;
   late final ui.Image _leftShoulderTile;
   late final ui.Image _rightShoulderTile;
@@ -20,7 +20,7 @@ class RoadComponent extends PositionComponent {
   Future<void> onLoad() async {
     size = findGame()!.size;
     position = Vector2.zero();
-    _clearSky = await _terrainImages.load('terrain/sky_04.png');
+    // _clearSky = await _terrainImages.load('terrain/sky_04.png');
     _mountainSky = await _terrainImages.load('terrain/sky_07.png');
     _leftShoulderTile = await Flame.images.load('road/road assists_02.png');
     _rightShoulderTile = await Flame.images.load('road/road assists_04.png');
@@ -47,7 +47,7 @@ class RoadComponent extends PositionComponent {
     super.render(canvas);
 
     _drawScenery(canvas);
-    _drawRoadsideTiles(canvas);
+    // _drawRoadsideTiles(canvas);
     _drawRoad(canvas);
   }
 
@@ -61,15 +61,15 @@ class RoadComponent extends PositionComponent {
       ).createShader(size.toRect());
     canvas.drawRect(size.toRect(), backgroundPaint);
 
-    _drawSkyImage(
-      canvas,
-      _clearSky,
-      Rect.fromLTWH(0, 0, size.x, size.y * 0.16),
-    );
+    // _drawSkyImage(
+    //   canvas,
+    //   _clearSky,
+    //   Rect.fromLTWH(0, 0, size.x, size.y * 0.16),
+    // );
     _drawSkyImage(
       canvas,
       _mountainSky,
-      Rect.fromLTWH(0, size.y * 0.10, size.x, size.y * 0.24),
+      Rect.fromLTWH(0, size.y * 0.00, size.x, size.y * 0.18),
     );
 
     final centerX = size.x / 2;
@@ -158,7 +158,7 @@ class RoadComponent extends PositionComponent {
 
   void _drawRoadsideTiles(Canvas canvas) {
     final horizonY = GameConfig.roadHorizonY(size.y);
-    final tileHeight = size.y * 0.12;
+    final tileHeight = size.y * 0.14;
     const tileOverlap = 4.0;
     final leftTileWidth =
         tileHeight * _leftShoulderTile.width / _leftShoulderTile.height;
@@ -208,6 +208,7 @@ class RoadComponent extends PositionComponent {
         ),
         Paint(),
       );
+
       canvas.drawImageRect(
         _rightShoulderTile,
         srcRight,

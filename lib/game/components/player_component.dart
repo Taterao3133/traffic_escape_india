@@ -29,7 +29,7 @@ class PlayerComponent extends SpriteComponent
                   game.size.y,
                   game.size.y - GameConfig.playerBottomPadding,
                 ) *
-                0.72)
+                0.90)
             .clamp(70.0, 150.0);
     size = Vector2(carWidth, carWidth * _spriteAspectRatio);
     sprite = await Sprite.load(playerSpritePath);

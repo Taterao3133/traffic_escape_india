@@ -38,10 +38,6 @@ class TrafficGame extends FlameGame
       );
     }
 
-    for (int i = 0; i < GameConfig.enemyCount; i++) {
-      debugPrint("Creating Enemy $i");
-      await add(EnemyComponent());
-    }
     _player = PlayerComponent();
     await add(_player);
     await add(Hud());
@@ -94,8 +90,7 @@ class TrafficGame extends FlameGame
     final verticalDistance = _dragDistanceY.abs();
 
     return horizontalDistance >= GameConfig.minSwipeDistance &&
-        horizontalDistance >=
-            verticalDistance * GameConfig.horizontalSwipeBias;
+        horizontalDistance >= verticalDistance * GameConfig.horizontalSwipeBias;
   }
 
   @override
@@ -112,16 +107,4 @@ class TrafficGame extends FlameGame
     _player.resetPlayer();
     debugPrint("Game Restarted");
   }
-
-  // @override
-  // KeyEventResult onKeyEvent(
-  //   KeyEvent event,
-  //   Set<LogicalKeyboardKey> keysPressed,
-  // ) {
-  //   if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyR) {
-  //     debugPrint("Restart Pressed");
-  //   }
-
-  //   return KeyEventResult.handled;
-  // }
 }

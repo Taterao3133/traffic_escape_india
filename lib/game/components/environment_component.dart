@@ -6,6 +6,13 @@ import 'package:flutter/material.dart';
 import '../config/game_config.dart';
 import '../managers/game_manager.dart';
 
+late Sprite treeSprite;
+late Sprite palmSprite;
+// late Sprite houseSprite;
+// late Sprite poleSprite;
+late Sprite signSprite;
+// late Sprite barrierSprite;
+
 enum EnvironmentObjectType {
   tree,
   palmTree,
@@ -42,7 +49,15 @@ class EnvironmentComponent extends PositionComponent {
     anchor = Anchor.topLeft;
     _chooseObject();
     position.y = initialY ?? -_random.nextDouble() * findGame()!.size.y;
+
     _placeOutsideRoad();
+
+    treeSprite = await Sprite.load('roadside/trees_1.png');
+    // palmSprite = await Sprite.load('roadside/tree_palm.png');
+    // houseSprite = await Sprite.load('buildings/house_01.png');
+    // poleSprite = await Sprite.load('roadside/bushes_1.png');
+    signSprite = await Sprite.load('signs/roadsign_1.png');
+    // barrierSprite = await Sprite.load('roadside/barrier_01.png');
 
     await super.onLoad();
   }
@@ -68,22 +83,29 @@ class EnvironmentComponent extends PositionComponent {
 
     switch (_type) {
       case EnvironmentObjectType.tree:
-        _drawTree(canvas, const Color(0xFF2E7D32));
+        treeSprite.render(canvas, size: size);
         break;
-      case EnvironmentObjectType.palmTree:
-        _drawPalmTree(canvas);
-        break;
-      case EnvironmentObjectType.house:
-        _drawHouse(canvas);
-        break;
-      case EnvironmentObjectType.streetLight:
-        _drawStreetLight(canvas);
-        break;
+
+      // case EnvironmentObjectType.palmTree:
+      //   palmSprite.render(canvas, size: size);
+      //   break;
+
+      // case EnvironmentObjectType.house:
+      //   houseSprite.render(canvas, size: size);
+      //   break;
+
+      // case EnvironmentObjectType.streetLight:
+      //   poleSprite.render(canvas, size: size);
+      //   break;
+
       case EnvironmentObjectType.trafficSign:
-        _drawTrafficSign(canvas);
+        signSprite.render(canvas, size: size);
         break;
-      case EnvironmentObjectType.barrier:
-        _drawBarrier(canvas);
+
+      // case EnvironmentObjectType.barrier:
+      //   barrierSprite.render(canvas, size: size);
+      //   break;
+      default:
         break;
     }
   }
@@ -100,22 +122,22 @@ class EnvironmentComponent extends PositionComponent {
 
     if (roll < 34) {
       _type = EnvironmentObjectType.tree;
-      size = Vector2(34, 72);
-    } else if (roll < 52) {
-      _type = EnvironmentObjectType.palmTree;
-      size = Vector2(32, 92);
-    } else if (roll < 68) {
-      _type = EnvironmentObjectType.house;
-      size = Vector2(42, 48);
-    } else if (roll < 82) {
-      _type = EnvironmentObjectType.streetLight;
-      size = Vector2(16, 76);
+      size = Vector2(90, 130);
+      // } else if (roll < 52) {
+      //   _type = EnvironmentObjectType.palmTree;
+      //   size = Vector2(32, 92);
+      // } else if (roll < 68) {
+      //   _type = EnvironmentObjectType.house;
+      //   size = Vector2(42, 48);
+      // } else if (roll < 82) {
+      //   _type = EnvironmentObjectType.streetLight;
+      //   size = Vector2(16, 76);
     } else if (roll < 92) {
       _type = EnvironmentObjectType.trafficSign;
-      size = Vector2(28, 46);
-    } else {
-      _type = EnvironmentObjectType.barrier;
-      size = Vector2(38, 22);
+      size = Vector2(60, 90);
+      // } else {
+      //   _type = EnvironmentObjectType.barrier;
+      //   size = Vector2(38, 22);
     }
   }
 

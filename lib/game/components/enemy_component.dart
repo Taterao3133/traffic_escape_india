@@ -7,6 +7,7 @@ import 'package:flame/collisions.dart';
 import '../config/game_config.dart';
 import '../managers/game_manager.dart';
 import 'player_component.dart';
+import '../config/speed_config.dart';
 
 class _VehicleSpec {
   const _VehicleSpec({
@@ -26,7 +27,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   }
   final random = Random(); //old random lane generation
   static int lastLane = -1;
-  double speed = 400;
+  double speed = 300;
   bool hasCollided = false;
   int currentLane = 0;
   late double _aspectRatio;
@@ -35,77 +36,91 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     _VehicleSpec(
       spritePath: 'cars/game assests_05.png',
       aspectRatio: 256 / 219,
-      speed: 380,
+      speed: SpeedConfig.taxi,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_07.png',
       aspectRatio: 256 / 219,
-      speed: 390,
+
+      speed: SpeedConfig.sedan,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_08.png',
       aspectRatio: 256 / 222,
-      speed: 400,
+
+      speed: SpeedConfig.police,
     ),
-    _VehicleSpec(
-      spritePath: 'cars/game assests_10.png',
-      aspectRatio: 228 / 219,
-      speed: 420,
-    ),
+    // _VehicleSpec(
+    //   spritePath: 'cars/game assests_10.png',
+    //   aspectRatio: 228 / 219,
+
+    //   speed: SpeedConfig.sportsPlayer,
+    // ),
     _VehicleSpec(
       spritePath: 'cars/game assests_11.png',
       aspectRatio: 228 / 219,
-      speed: 410,
+
+      speed: SpeedConfig.sedan,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_12.png',
       aspectRatio: 228 / 219,
-      speed: 405,
+
+      speed: SpeedConfig.jeep,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_13.png',
       aspectRatio: 228 / 219,
-      speed: 415,
+
+      speed: SpeedConfig.hatchback,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_14.png',
       aspectRatio: 228 / 219,
-      speed: 430,
+
+      speed: SpeedConfig.pickup,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_16.png',
       aspectRatio: 256 / 219,
-      speed: 360,
+
+      speed: SpeedConfig.cityBus,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_17.png',
       aspectRatio: 256 / 219,
-      speed: 370,
+
+      speed: SpeedConfig.coachBus,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_18.png',
       aspectRatio: 256 / 187,
-      speed: 350,
+
+      speed: SpeedConfig.boxTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_19.png',
       aspectRatio: 256 / 219,
-      speed: 390,
+
+      speed: SpeedConfig.cargoTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_21.png',
       aspectRatio: 256 / 219,
-      speed: 375,
+
+      speed: SpeedConfig.cargoTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_22.png',
       aspectRatio: 256 / 219,
-      speed: 385,
+
+      speed: SpeedConfig.fuelTanker,
     ),
     _VehicleSpec(
       spritePath: 'cars/game assests_24.png',
       aspectRatio: 256 / 222,
-      speed: 395,
+
+      speed: SpeedConfig.dumpTruck,
     ),
   ];
 
@@ -121,10 +136,21 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
     if (position == Vector2.zero()) {
       currentLane = random.nextInt(GameConfig.laneCount);
+
+      final gameSize = findGame()!.size;
+      final horizon = GameConfig.roadHorizonY(gameSize.y);
+
       position = Vector2(
-        _laneCenter(),
-        -size.y - random.nextInt(800).toDouble(),
+        GameConfig.laneCenterAtY(
+          gameSize.x,
+          gameSize.y,
+          currentLane,
+          horizon + 20,
+        ),
+        horizon + random.nextDouble() * 30,
       );
+
+      _resizeForDepth();
     } else {
       currentLane = _closestLane(position.x);
       position.x = _laneCenter();
@@ -142,33 +168,21 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     }
 
     // position.y += speed * dt;
-    double difficultyMultiplier = 1 + (GameManager.instance.score / 1000);
+    double difficultyMultiplier = 1 + (GameManager.instance.score / 5000);
 
-    if (difficultyMultiplier > 2.5) {
-      difficultyMultiplier = 2.5;
+    if (difficultyMultiplier > 1.5) {
+      difficultyMultiplier = 1.5;
     }
 
-    position.y += speed * difficultyMultiplier * dt;
+    final roadSpeed = SpeedConfig.playerSpeed;
+    final relativeSpeed = roadSpeed - speed;
+
+    position.y += relativeSpeed * difficultyMultiplier * dt;
     _resizeForDepth();
     position.x = _laneCenter();
 
-    if (position.y > findGame()!.size.y) {
-      //    removeFromParent();
-      position.y = -200;
-
-      // position.x = lanePositions[random.nextInt(3)];
-      int lane;
-
-      do {
-        lane = random.nextInt(3);
-      } while (lane == lastLane);
-
-      currentLane = lane;
-      lastLane = lane;
-      _resizeForDepth();
-
-      position.x = _laneCenter();
-      hasCollided = false;
+    if (position.y > findGame()!.size.y + size.y) {
+      removeFromParent();
     }
   }
 
@@ -220,27 +234,6 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     size = Vector2(carWidth, carWidth * _aspectRatio);
   }
 
-  // @override
-  // void render(Canvas canvas) {
-  //   super.render(canvas);
-
-  //   final paint = Paint()..color = Colors.green;
-
-  //   canvas.drawRect(size.toRect(), paint);
-  // }
-
-  // @override
-  // void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-  //   super.onCollision(intersectionPoints, other);
-
-  //   if (hasCollided) return;
-
-  //   hasCollided = true;
-
-  //   GameManager.instance.damagePlayer(25);
-
-  //   debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
-  // }
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);

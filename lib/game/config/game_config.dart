@@ -13,9 +13,9 @@ class GameConfig {
 
   static const double sideShoulderWidth = 48;
 
-  static const double roadHorizonRatio = 0.19;
+  static const double roadHorizonRatio = 0.35; //camera view angle set
 
-  static const double roadHorizonScale = 0.16;
+  static const double roadHorizonScale = 0.40;
 
   static double roadWidth(double screenWidth) {
     final availableWidth = screenWidth - (sideShoulderWidth * 2);
@@ -109,9 +109,9 @@ class GameConfig {
   // Player
   // ----------------------------
 
-  static const Size playerSize = Size(160, 100);
+  static const Size playerSize = Size(360, 260);
 
-  static const double playerBottomPadding = 250;
+  static const double playerBottomPadding = 110; // 250 earlier
 
   static const double laneChangeDuration = 0.12;
 
