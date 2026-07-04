@@ -14,7 +14,7 @@ class RoadComponent extends PositionComponent {
   // late final ui.Image _clearSky;
   late final ui.Image _mountainSky;
   late final ui.Image _leftShoulderTile;
-  late final ui.Image _rightShoulderTile;
+  // late final ui.Image _rightShoulderTile;
 
   @override
   Future<void> onLoad() async {
@@ -23,7 +23,7 @@ class RoadComponent extends PositionComponent {
     // _clearSky = await _terrainImages.load('terrain/sky_04.png');
     _mountainSky = await _terrainImages.load('terrain/sky_07.png');
     _leftShoulderTile = await Flame.images.load('road/road assists_02.png');
-    _rightShoulderTile = await Flame.images.load('road/road assists_04.png');
+    // _rightShoulderTile = await Flame.images.load('road/road assists_04.png');
 
     await super.onLoad();
   }
@@ -156,67 +156,67 @@ class RoadComponent extends PositionComponent {
     canvas.drawImageRect(image, source, destination, Paint());
   }
 
-  void _drawRoadsideTiles(Canvas canvas) {
-    final horizonY = GameConfig.roadHorizonY(size.y);
-    final tileHeight = size.y * 0.14;
-    const tileOverlap = 4.0;
-    final leftTileWidth =
-        tileHeight * _leftShoulderTile.width / _leftShoulderTile.height;
-    final rightTileWidth =
-        tileHeight * _rightShoulderTile.width / _rightShoulderTile.height;
-    final srcLeft = Rect.fromLTWH(
-      0,
-      0,
-      _leftShoulderTile.width.toDouble(),
-      _leftShoulderTile.height.toDouble(),
-    );
-    final srcRight = Rect.fromLTWH(
-      0,
-      0,
-      _rightShoulderTile.width.toDouble(),
-      _rightShoulderTile.height.toDouble(),
-    );
+  // void _drawRoadsideTiles(Canvas canvas) {
+  //   final horizonY = GameConfig.roadHorizonY(size.y);
+  //   final tileHeight = size.y * 0.14;
+  //   const tileOverlap = 4.0;
+  //   final leftTileWidth =
+  //       tileHeight * _leftShoulderTile.width / _leftShoulderTile.height;
+  //   final rightTileWidth =
+  //       tileHeight * _rightShoulderTile.width / _rightShoulderTile.height;
+  //   final srcLeft = Rect.fromLTWH(
+  //     0,
+  //     0,
+  //     _leftShoulderTile.width.toDouble(),
+  //     _leftShoulderTile.height.toDouble(),
+  //   );
+  //   final srcRight = Rect.fromLTWH(
+  //     0,
+  //     0,
+  //     _rightShoulderTile.width.toDouble(),
+  //     _rightShoulderTile.height.toDouble(),
+  //   );
 
-    for (
-      double y = -tileHeight + lineOffset;
-      y < size.y;
-      y += tileHeight - tileOverlap
-    ) {
-      if (y + tileHeight < horizonY + 16) {
-        continue;
-      }
+  //   for (
+  //     double y = -tileHeight + lineOffset;
+  //     y < size.y;
+  //     y += tileHeight - tileOverlap
+  //   ) {
+  //     if (y + tileHeight < horizonY + 16) {
+  //       continue;
+  //     }
 
-      final leftRoadEdge = GameConfig.roadLeftAtY(
-        size.x,
-        size.y,
-        y + tileHeight,
-      );
-      final rightRoadEdge = GameConfig.roadRightAtY(
-        size.x,
-        size.y,
-        y + tileHeight,
-      );
+  //     final leftRoadEdge = GameConfig.roadLeftAtY(
+  //       size.x,
+  //       size.y,
+  //       y + tileHeight,
+  //     );
+  //     final rightRoadEdge = GameConfig.roadRightAtY(
+  //       size.x,
+  //       size.y,
+  //       y + tileHeight,
+  //     );
 
-      canvas.drawImageRect(
-        _leftShoulderTile,
-        srcLeft,
-        Rect.fromLTWH(
-          leftRoadEdge - leftTileWidth + 4,
-          y,
-          leftTileWidth,
-          tileHeight,
-        ),
-        Paint(),
-      );
+  //     canvas.drawImageRect(
+  //       _leftShoulderTile,
+  //       srcLeft,
+  //       Rect.fromLTWH(
+  //         leftRoadEdge - leftTileWidth + 4,
+  //         y,
+  //         leftTileWidth,
+  //         tileHeight,
+  //       ),
+  //       Paint(),
+  //     );
 
-      canvas.drawImageRect(
-        _rightShoulderTile,
-        srcRight,
-        Rect.fromLTWH(rightRoadEdge - 4, y, rightTileWidth, tileHeight),
-        Paint(),
-      );
-    }
-  }
+  //     canvas.drawImageRect(
+  //       _rightShoulderTile,
+  //       srcRight,
+  //       Rect.fromLTWH(rightRoadEdge - 4, y, rightTileWidth, tileHeight),
+  //       Paint(),
+  //     );
+  //   }
+  // }
 
   void _drawRoad(Canvas canvas) {
     final horizonY = GameConfig.roadHorizonY(size.y);

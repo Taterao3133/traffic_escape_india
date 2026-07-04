@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flame/events.dart';
 import 'components/road_component.dart';
 import 'components/player_component.dart';
-import 'components/enemy_component.dart';
+// import 'components/enemy_component.dart';
 import 'components/environment_component.dart';
 import 'managers/traffic_manager.dart';
 import 'config/game_config.dart';
