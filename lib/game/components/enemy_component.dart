@@ -34,18 +34,18 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
   static const List<_VehicleSpec> _vehicleSpecs = [
     _VehicleSpec(
-      spritePath: 'cars/game assests_05.png',
+      spritePath: 'cars/Taxi.png',
       aspectRatio: 256 / 219,
       speed: SpeedConfig.taxi,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_07.png',
+      spritePath: 'cars/sedan.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.sedan,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_08.png',
+      spritePath: 'cars/police.png',
       aspectRatio: 256 / 222,
 
       speed: SpeedConfig.police,
@@ -57,67 +57,85 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     //   speed: SpeedConfig.sportsPlayer,
     // ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_11.png',
+      spritePath: 'cars/sedanwhite.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.sedan,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_12.png',
+      spritePath: 'cars/jeep.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.jeep,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_13.png',
+      spritePath: 'cars/whitesuv.png',
+      aspectRatio: 228 / 219,
+
+      speed: SpeedConfig.jeep,
+    ),
+    _VehicleSpec(
+      spritePath: 'cars/blacksuv.png',
+      aspectRatio: 228 / 219,
+
+      speed: SpeedConfig.jeep,
+    ),
+    _VehicleSpec(
+      spritePath: 'cars/hatchback.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.hatchback,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_14.png',
+      spritePath: 'cars/pickup.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.pickup,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_16.png',
+      spritePath: 'cars/citybus.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.cityBus,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_17.png',
+      spritePath: 'cars/coachbus.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.coachBus,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_18.png',
+      spritePath: 'cars/boxtruck.png',
       aspectRatio: 256 / 187,
 
       speed: SpeedConfig.boxTruck,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_19.png',
+      spritePath: 'cars/cargotruck.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.cargoTruck,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_21.png',
+      spritePath: 'cars/cargotruck2.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.cargoTruck,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_22.png',
+      spritePath: 'cars/fueltanker.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.fuelTanker,
     ),
     _VehicleSpec(
-      spritePath: 'cars/game assests_24.png',
+      spritePath: 'cars/dumper.png',
+      aspectRatio: 256 / 222,
+
+      speed: SpeedConfig.dumpTruck,
+    ),
+    _VehicleSpec(
+      spritePath: 'cars/autorikshaw.png',
       aspectRatio: 256 / 222,
 
       speed: SpeedConfig.dumpTruck,
@@ -125,41 +143,31 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   ];
 
   @override
+  @override
   Future<void> onLoad() async {
     debugPrint("Enemy Loaded");
-    final spec = _vehicleSpecs[random.nextInt(_vehicleSpecs.length)];
-    _aspectRatio = spec.aspectRatio;
 
-    sprite = await Sprite.load(spec.spritePath);
-    _resizeForDepth();
+    final spec = _vehicleSpecs[random.nextInt(_vehicleSpecs.length)];
+
+    _aspectRatio = spec.aspectRatio;
     speed = spec.speed;
 
-    if (position == Vector2.zero()) {
-      currentLane = random.nextInt(GameConfig.laneCount);
+    sprite = await Sprite.load(spec.spritePath);
 
-      final gameSize = findGame()!.size;
-      final horizon = GameConfig.roadHorizonY(gameSize.y);
+    final gameSize = findGame()!.size;
 
-      position = Vector2(
-        GameConfig.laneCenterAtY(
-          gameSize.x,
-          gameSize.y,
-          currentLane,
-          horizon + 20,
-        ),
-        horizon + random.nextDouble() * 10,
-        // gameSize.y + random.nextDouble() * 50,
+    // TrafficManager already sets currentLane and position.y
+    position.x = GameConfig.laneCenterAtY(
+      gameSize.x,
+      gameSize.y,
+      currentLane,
+      position.y,
+    );
 
-        // position.y = gameSize.y + random.nextDouble() * 500;
-      );
-
-      _resizeForDepth();
-    } else {
-      currentLane = _closestLane(position.x);
-      position.x = _laneCenter();
-    }
+    _resizeForDepth();
 
     await super.onLoad();
+
     add(RectangleHitbox());
   }
 
@@ -171,11 +179,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     }
 
     // position.y += speed * dt;
-    double difficultyMultiplier = 1 + (GameManager.instance.score / 5000);
-
-    if (difficultyMultiplier > 1.5) {
-      difficultyMultiplier = 1.5;
-    }
+    const double difficultyMultiplier = 1.0;
 
     final roadSpeed = SpeedConfig.playerSpeed;
     final relativeSpeed = roadSpeed - speed;
@@ -186,10 +190,13 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         dt; // here we can decide the vehcle which direction shoult move
     _resizeForDepth();
     position.x = _laneCenter();
+    // if (position.y > findGame()!.size.y + size.y) {
+    //   removeFromParent();
+    // }
 
-    if (position.y > findGame()!.size.y + size.y) {
-      removeFromParent();
-    }
+    // if (position.y > findGame()!.size.y + size.y) {
+    //   removeFromParent();
+    // }
   }
 
   double _laneCenter() {

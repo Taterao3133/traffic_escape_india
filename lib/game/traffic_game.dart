@@ -5,11 +5,12 @@ import 'components/road_component.dart';
 import 'components/player_component.dart';
 import 'components/enemy_component.dart';
 import 'components/environment_component.dart';
+import 'managers/traffic_manager.dart';
 import 'config/game_config.dart';
 //import 'package:flame/collisions.dart';
 //import 'managers/enemy_manager.dart';
 import 'managers/game_manager.dart';
-import 'managers/spawn_manager.dart';
+// import 'managers/spawn_manager.dart';
 import 'ui/hud.dart';
 
 class TrafficGame extends FlameGame
@@ -41,7 +42,8 @@ class TrafficGame extends FlameGame
     _player = PlayerComponent();
     await add(_player);
     await add(Hud());
-    await add(SpawnManager());
+    // await add(SpawnManager());
+    await add(TrafficManager());
 
     await super.onLoad();
   }

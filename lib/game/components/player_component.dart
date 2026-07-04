@@ -10,7 +10,7 @@ import '../managers/game_manager.dart';
 
 class PlayerComponent extends SpriteComponent
     with HasGameReference<FlameGame>, KeyboardHandler, CollisionCallbacks {
-  static const String playerSpritePath = 'cars/game assests_09.png';
+  static const String playerSpritePath = 'cars/sportscar.png';
   static const double _spriteAspectRatio = 228 / 219;
 
   int currentLane = 1;
