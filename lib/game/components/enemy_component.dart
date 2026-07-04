@@ -147,7 +147,10 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
           currentLane,
           horizon + 20,
         ),
-        horizon + random.nextDouble() * 30,
+        horizon + random.nextDouble() * 10,
+        // gameSize.y + random.nextDouble() * 50,
+
+        // position.y = gameSize.y + random.nextDouble() * 500;
       );
 
       _resizeForDepth();
@@ -177,7 +180,10 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     final roadSpeed = SpeedConfig.playerSpeed;
     final relativeSpeed = roadSpeed - speed;
 
-    position.y += relativeSpeed * difficultyMultiplier * dt;
+    position.y +=
+        relativeSpeed *
+        difficultyMultiplier *
+        dt; // here we can decide the vehcle which direction shoult move
     _resizeForDepth();
     position.x = _laneCenter();
 

@@ -281,19 +281,19 @@ class RoadComponent extends PositionComponent {
   }
 
   void _drawLaneLines(Canvas canvas) {
-    final edgePaint = Paint()
-      ..color = const Color(0xFFFFC928)
-      ..strokeWidth = 4
-      ..strokeCap = StrokeCap.round;
+    // final edgePaint = Paint()
+    //   ..color = const ui.Color.fromARGB(255, 24, 24, 21)
+    //   ..strokeWidth = 4
+    //   ..strokeCap = StrokeCap.round;
     final lanePaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.88)
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
 
-    _drawProjectedLine(canvas, 0, edgePaint, solid: true);
+    // _drawProjectedLine(canvas, 0, edgePaint, solid: true);
     _drawProjectedLine(canvas, 1, lanePaint);
     _drawProjectedLine(canvas, 2, lanePaint);
-    _drawProjectedLine(canvas, 3, edgePaint, solid: true);
+    // _drawProjectedLine(canvas, 3, edgePaint, solid: true);
   }
 
   void _drawProjectedLine(
