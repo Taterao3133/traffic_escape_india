@@ -44,6 +44,7 @@ class EnvironmentComponent extends PositionComponent {
     position.y = initialY ?? -_random.nextDouble() * findGame()!.size.y;
 
     _placeOutsideRoad();
+    _updatePerspective();
 
     await super.onLoad();
   }
@@ -55,6 +56,7 @@ class EnvironmentComponent extends PositionComponent {
     if (GameManager.instance.isGameOver) return;
 
     position.y += _baseScrollSpeed * dt;
+    _updatePerspective();
 
     if (position.y > findGame()!.size.y + size.y) {
       _recycle();
@@ -114,6 +116,16 @@ class EnvironmentComponent extends PositionComponent {
 
       position.x = _randomRange(min(minX, maxX), max(minX, maxX));
     }
+  }
+
+  void _updatePerspective() {
+    final gameSize = findGame()!.size;
+
+    final depth = (position.y / gameSize.y).clamp(0.0, 1.0);
+
+    final scale = 0.25 + (depth * 1.35);
+
+    // scale = Vector2.all(scaleValue);
   }
 
   double _randomRange(double minValue, double maxValue) {

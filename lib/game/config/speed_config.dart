@@ -20,6 +20,7 @@ class SpeedConfig {
   static const double taxi = 300; // game assests_05
   static const double ambulance = 300; // game assests_14
   static const double police = 300; // game assests_08
+  static const double autorikshaw = 200; // game assests_09
 
   // Player / Fastest
   static const double sports = 470; // game assests_09

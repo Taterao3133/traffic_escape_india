@@ -57,6 +57,8 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   static const double brakeSpeed = 80;
   bool hasCollided = false;
   bool isChangingLane = false;
+  double laneChangeCooldown = 0;
+  static const double laneChangeDelay = 1.5;
 
   static const double laneChangeDuration = 0.35;
   int currentLane = 0;
@@ -229,6 +231,48 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     }
   }
 
+  double get laneChangeChance {
+    switch (vehicleType) {
+      case VehicleType.taxi:
+        return 0.90;
+
+      case VehicleType.sedan:
+        return 0.60;
+
+      case VehicleType.hatchback:
+        return 0.70;
+
+      case VehicleType.suv:
+        return 0.75;
+
+      case VehicleType.jeep:
+        return 0.50;
+
+      case VehicleType.pickup:
+        return 0.35;
+
+      case VehicleType.cityBus:
+      case VehicleType.coachBus:
+        return 0.10;
+
+      case VehicleType.boxTruck:
+      case VehicleType.cargoTruck:
+      case VehicleType.fuelTanker:
+      case VehicleType.dumpTruck:
+        return 0.02;
+
+      case VehicleType.police:
+        return 1.00;
+
+      case VehicleType.autorickshaw:
+        return 0.80;
+    }
+  }
+
+  bool get canChangeLane {
+    return random.nextDouble() <= laneChangeChance;
+  }
+
   @override
   Future<void> onLoad() async {
     debugPrint("Enemy Loaded");
@@ -263,6 +307,9 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
+    if (laneChangeCooldown > 0) {
+      laneChangeCooldown -= dt;
+    }
     if (GameManager.instance.isGameOver) {
       return;
     }
@@ -291,6 +338,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
   void _tryLaneChange() {
     if (isChangingLane) return;
+    if (isChangingLane || laneChangeCooldown > 0) return;
 
     final enemies = parent!.children.whereType<EnemyComponent>().toList();
 
@@ -314,6 +362,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
       if (laneFree) {
         isChangingLane = true;
+        laneChangeCooldown = laneChangeDelay;
 
         currentLane = newLane;
 
@@ -351,31 +400,6 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
       position.y.clamp(0.0, gameSize.y),
     );
   }
-
-  // int _closestLane(double x) {
-  //   final gameSize = findGame()!.size;
-  //   var closestLane = 0;
-  //   var closestDistance = double.infinity;
-
-  //   for (int lane = 0; lane < GameConfig.laneCount; lane++) {
-  //     final distance =
-  //         (GameConfig.laneCenterAtY(
-  //                   gameSize.x,
-  //                   gameSize.y,
-  //                   lane,
-  //                   position.y.clamp(0.0, gameSize.y),
-  //                 ) -
-  //                 x)
-  //             .abs();
-
-  //     if (distance < closestDistance) {
-  //       closestDistance = distance;
-  //       closestLane = lane;
-  //     }
-  //   }
-
-  //   return closestLane;
-  // }
 
   void _resizeForDepth() {
     final gameSize = findGame()!.size;
