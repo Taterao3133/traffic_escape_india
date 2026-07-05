@@ -10,17 +10,38 @@ import 'player_component.dart';
 import '../config/speed_config.dart';
 import 'package:flame/effects.dart';
 
+enum VehicleType {
+  taxi,
+  sedan,
+  police,
+  jeep,
+  suv,
+  hatchback,
+  pickup,
+  cityBus,
+  coachBus,
+  boxTruck,
+  cargoTruck,
+  fuelTanker,
+  dumpTruck,
+  autorickshaw,
+}
+
 class _VehicleSpec {
   const _VehicleSpec({
     required this.spritePath,
     required this.aspectRatio,
     required this.speed,
+    required this.type,
   });
 
   final String spritePath;
   final double aspectRatio;
   final double speed;
+  final VehicleType type;
 }
+
+late VehicleType vehicleType;
 
 class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   EnemyComponent() {
@@ -46,18 +67,21 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
       spritePath: 'cars/Taxi.png',
       aspectRatio: 256 / 219,
       speed: SpeedConfig.taxi,
+      type: VehicleType.taxi,
     ),
     _VehicleSpec(
       spritePath: 'cars/sedan.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.sedan,
+      type: VehicleType.sedan,
     ),
     _VehicleSpec(
       spritePath: 'cars/police.png',
       aspectRatio: 256 / 222,
 
       speed: SpeedConfig.police,
+      type: VehicleType.police,
     ),
     // _VehicleSpec(
     //   spritePath: 'cars/game assests_10.png',
@@ -70,84 +94,98 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.sedan,
+      type: VehicleType.sedan,
     ),
     _VehicleSpec(
       spritePath: 'cars/jeep.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.jeep,
+      type: VehicleType.jeep,
     ),
     _VehicleSpec(
       spritePath: 'cars/whitesuv.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.jeep,
+      type: VehicleType.suv,
     ),
     _VehicleSpec(
       spritePath: 'cars/blacksuv.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.jeep,
+      type: VehicleType.suv,
     ),
     _VehicleSpec(
       spritePath: 'cars/hatchback.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.hatchback,
+      type: VehicleType.hatchback,
     ),
     _VehicleSpec(
       spritePath: 'cars/pickup.png',
       aspectRatio: 228 / 219,
 
       speed: SpeedConfig.pickup,
+      type: VehicleType.pickup,
     ),
     _VehicleSpec(
       spritePath: 'cars/citybus.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.cityBus,
+      type: VehicleType.cityBus,
     ),
     _VehicleSpec(
       spritePath: 'cars/coachbus.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.coachBus,
+      type: VehicleType.coachBus,
     ),
     _VehicleSpec(
       spritePath: 'cars/boxtruck.png',
       aspectRatio: 256 / 187,
 
       speed: SpeedConfig.boxTruck,
+      type: VehicleType.boxTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/cargotruck.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.cargoTruck,
+      type: VehicleType.cargoTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/cargotruck2.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.cargoTruck,
+      type: VehicleType.cargoTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/fueltanker.png',
       aspectRatio: 256 / 219,
 
       speed: SpeedConfig.fuelTanker,
+      type: VehicleType.fuelTanker,
     ),
     _VehicleSpec(
       spritePath: 'cars/dumper.png',
       aspectRatio: 256 / 222,
 
       speed: SpeedConfig.dumpTruck,
+      type: VehicleType.dumpTruck,
     ),
     _VehicleSpec(
       spritePath: 'cars/autorikshaw.png',
       aspectRatio: 256 / 222,
 
-      speed: SpeedConfig.dumpTruck,
+      speed: SpeedConfig.autorikshaw,
+      type: VehicleType.autorickshaw,
     ),
   ];
 
@@ -197,6 +235,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
     // final spec = _vehicleSpecs[random.nextInt(_vehicleSpecs.length)];
     final spec = _randomVehicle();
+    vehicleType = spec.type;
     _aspectRatio = spec.aspectRatio;
     speed = spec.speed;
     currentSpeed = speed;
