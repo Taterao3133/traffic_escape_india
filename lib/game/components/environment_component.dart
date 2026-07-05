@@ -123,9 +123,9 @@ class EnvironmentComponent extends PositionComponent {
 
     final depth = (position.y / gameSize.y).clamp(0.0, 1.0);
 
-    final scale = 0.25 + (depth * 1.35);
+    final scaleValue = 0.25 + (depth * 1.35);
 
-    // scale = Vector2.all(scaleValue);
+    scale = Vector2.all(scaleValue);
   }
 
   double _randomRange(double minValue, double maxValue) {

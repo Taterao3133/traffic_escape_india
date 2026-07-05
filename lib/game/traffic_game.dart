@@ -11,6 +11,8 @@ import 'config/game_config.dart';
 //import 'managers/enemy_manager.dart';
 import 'managers/game_manager.dart';
 // import 'managers/spawn_manager.dart';
+
+import 'components/background_component.dart';
 import 'ui/hud.dart';
 
 class TrafficGame extends FlameGame
@@ -44,6 +46,7 @@ class TrafficGame extends FlameGame
     await add(Hud());
     // await add(SpawnManager());
     await add(TrafficManager());
+    await add(BackgroundComponent());
 
     await super.onLoad();
   }
