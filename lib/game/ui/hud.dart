@@ -14,6 +14,7 @@ class Hud extends PositionComponent {
 
   @override
   Future<void> onLoad() async {
+    priority = 100;
     scoreText = TextComponent(
       text: "Score : 0",
       position: Vector2(20, 20),
@@ -73,15 +74,6 @@ class Hud extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
-
-    // if (GameManager.instance.isGameOver) {
-    //   return;
-    // }
-    if (!GameManager.instance.isGameOver) {
-      GameManager.instance.score += (dt * 100).toInt();
-      GameManager.instance.distance += dt * 0.08;
-    }
-
     scoreText.text = "Score : ${GameManager.instance.score}";
 
     distanceText.text =

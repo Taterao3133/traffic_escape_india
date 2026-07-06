@@ -11,8 +11,10 @@ import 'config/game_config.dart';
 //import 'managers/enemy_manager.dart';
 import 'managers/game_manager.dart';
 // import 'managers/spawn_manager.dart';
+import 'background/background_component.dart';
+import 'managers/coin_manager.dart';
 
-import 'components/background_component.dart';
+// import 'components/background_component.dart';
 import 'ui/hud.dart';
 
 class TrafficGame extends FlameGame
@@ -31,7 +33,10 @@ class TrafficGame extends FlameGame
     debugPrint("🎮 Traffic Escape India Started!");
     //await add(GameManager());
 
+    await add(BackgroundComponent());
+
     await add(RoadComponent());
+
     for (int i = 0; i < 12; i++) {
       await add(
         EnvironmentComponent(
@@ -41,12 +46,14 @@ class TrafficGame extends FlameGame
       );
     }
 
+    await add(TrafficManager());
+
+    await add(CoinManager());
+
     _player = PlayerComponent();
     await add(_player);
+
     await add(Hud());
-    // await add(SpawnManager());
-    await add(TrafficManager());
-    await add(BackgroundComponent());
 
     await super.onLoad();
   }
@@ -79,6 +86,13 @@ class TrafficGame extends FlameGame
         _player.moveRight();
       }
     }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    GameManager.instance.update(dt);
   }
 
   @override

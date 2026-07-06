@@ -21,6 +21,7 @@ class PlayerComponent extends SpriteComponent
 
   @override
   Future<void> onLoad() async {
+    priority = 30;
     anchor = Anchor.center;
     lanePositions = _lanePositions();
     final carWidth =

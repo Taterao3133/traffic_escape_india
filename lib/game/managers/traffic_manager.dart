@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 
 import '../components/enemy_component.dart';
+import '../config/game_config.dart';
 
 class TrafficManager extends Component {
   final Random _random = Random();
@@ -12,11 +13,15 @@ class TrafficManager extends Component {
 
   static const int maxCarsOnScreen = 10;
 
-  double _nextSpawnY = 200;
+  late double _nextSpawnY;
 
   @override
   Future<void> onLoad() async {
-    super.onLoad();
+    await super.onLoad();
+
+    final gameHeight = parent!.findGame()!.size.y;
+
+    _nextSpawnY = GameConfig.roadHorizonY(gameHeight) + 20;
 
     for (int i = 0; i < 5; i++) {
       _spawnWave();
@@ -29,7 +34,7 @@ class TrafficManager extends Component {
 
     final gameHeight = parent!.findGame()!.size.y;
 
-    // Remove cars that passed the player
+    // Remove cars that have gone off-screen
     for (final enemy in parent!.children.whereType<EnemyComponent>().toList()) {
       if (enemy.position.y > gameHeight + enemy.size.y + 100) {
         enemy.removeFromParent();
@@ -38,21 +43,25 @@ class TrafficManager extends Component {
 
     final currentCars = parent!.children.whereType<EnemyComponent>().length;
 
-    if (currentCars < maxCarsOnScreen) {
+    while (currentCars +
+            parent!.children
+                .whereType<EnemyComponent>()
+                .where((e) => e.isRemoving)
+                .length <
+        maxCarsOnScreen) {
       _spawnWave();
+      break;
     }
   }
 
   void _spawnWave() {
-    // Wave Types
     final waves = <List<int>>[
-      [0], // Left
-      [1], // Middle
-      [2], // Right
-
-      [0, 1], // Left + Middle
-      [1, 2], // Middle + Right
-      [0, 2], // Left + Right
+      [0],
+      [1],
+      [2],
+      [0, 1],
+      [1, 2],
+      [0, 2],
     ];
 
     final wave = waves[_random.nextInt(waves.length)];
@@ -66,6 +75,7 @@ class TrafficManager extends Component {
       parent!.add(enemy);
     }
 
+    // Next wave spawns further above the current one
     _nextSpawnY -=
         minWaveGap + _random.nextDouble() * (maxWaveGap - minWaveGap);
   }

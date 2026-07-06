@@ -2,27 +2,28 @@ import 'dart:ui' as ui;
 
 import 'package:flame/cache.dart';
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
+// import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import '../config/game_config.dart';
 import '../managers/game_manager.dart';
 
 class RoadComponent extends PositionComponent {
-  static final Images _terrainImages = Images(prefix: 'assets/');
+  // static final Images _terrainImages = Images(prefix: 'assets/');
 
   double lineOffset = 0;
   // late final ui.Image _clearSky;
-  late final ui.Image _mountainSky;
-  late final ui.Image _leftShoulderTile;
+  // late final ui.Image _mountainSky;
+  // late final ui.Image _leftShoulderTile;
   // late final ui.Image _rightShoulderTile;
 
   @override
   Future<void> onLoad() async {
+    priority = 0;
     size = findGame()!.size;
     position = Vector2.zero();
     // _clearSky = await _terrainImages.load('terrain/sky_04.png');
-    _mountainSky = await _terrainImages.load('terrain/sky_07.png');
-    _leftShoulderTile = await Flame.images.load('road/road assists_02.png');
+    // _mountainSky = await _terrainImages.load('images/sky/sky_day.png');
+    // _leftShoulderTile = await Flame.images.load('road/road assists_03.png');
     // _rightShoulderTile = await Flame.images.load('road/road assists_04.png');
 
     await super.onLoad();
@@ -35,19 +36,17 @@ class RoadComponent extends PositionComponent {
       return;
     }
 
-    lineOffset += 360 * dt;
+    lineOffset += 240 * dt;
 
-    if (lineOffset > _leftShoulderTile.height) {
-      lineOffset %= _leftShoulderTile.height;
-    }
+    // if (lineOffset > _leftShoulderTile.height) {
+    //   lineOffset %= _leftShoulderTile.height;
+    // }
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
 
-    _drawScenery(canvas);
-    // _drawRoadsideTiles(canvas);
     _drawRoad(canvas);
   }
 
@@ -66,11 +65,11 @@ class RoadComponent extends PositionComponent {
     //   _clearSky,
     //   Rect.fromLTWH(0, 0, size.x, size.y * 0.16),
     // );
-    _drawSkyImage(
-      canvas,
-      _mountainSky,
-      Rect.fromLTWH(0, size.y * 0.00, size.x, size.y * 0.18),
-    );
+    // _drawSkyImage(
+    //   canvas,
+    //   _mountainSky,
+    //   Rect.fromLTWH(0, size.y * 0.00, size.x, size.y * 0.18),
+    // );
 
     final centerX = size.x / 2;
     final topLeft = GameConfig.roadLeftAtY(size.x, size.y, horizonY);
@@ -156,68 +155,6 @@ class RoadComponent extends PositionComponent {
     canvas.drawImageRect(image, source, destination, Paint());
   }
 
-  // void _drawRoadsideTiles(Canvas canvas) {
-  //   final horizonY = GameConfig.roadHorizonY(size.y);
-  //   final tileHeight = size.y * 0.14;
-  //   const tileOverlap = 4.0;
-  //   final leftTileWidth =
-  //       tileHeight * _leftShoulderTile.width / _leftShoulderTile.height;
-  //   final rightTileWidth =
-  //       tileHeight * _rightShoulderTile.width / _rightShoulderTile.height;
-  //   final srcLeft = Rect.fromLTWH(
-  //     0,
-  //     0,
-  //     _leftShoulderTile.width.toDouble(),
-  //     _leftShoulderTile.height.toDouble(),
-  //   );
-  //   final srcRight = Rect.fromLTWH(
-  //     0,
-  //     0,
-  //     _rightShoulderTile.width.toDouble(),
-  //     _rightShoulderTile.height.toDouble(),
-  //   );
-
-  //   for (
-  //     double y = -tileHeight + lineOffset;
-  //     y < size.y;
-  //     y += tileHeight - tileOverlap
-  //   ) {
-  //     if (y + tileHeight < horizonY + 16) {
-  //       continue;
-  //     }
-
-  //     final leftRoadEdge = GameConfig.roadLeftAtY(
-  //       size.x,
-  //       size.y,
-  //       y + tileHeight,
-  //     );
-  //     final rightRoadEdge = GameConfig.roadRightAtY(
-  //       size.x,
-  //       size.y,
-  //       y + tileHeight,
-  //     );
-
-  //     canvas.drawImageRect(
-  //       _leftShoulderTile,
-  //       srcLeft,
-  //       Rect.fromLTWH(
-  //         leftRoadEdge - leftTileWidth + 4,
-  //         y,
-  //         leftTileWidth,
-  //         tileHeight,
-  //       ),
-  //       Paint(),
-  //     );
-
-  //     canvas.drawImageRect(
-  //       _rightShoulderTile,
-  //       srcRight,
-  //       Rect.fromLTWH(rightRoadEdge - 4, y, rightTileWidth, tileHeight),
-  //       Paint(),
-  //     );
-  //   }
-  // }
-
   void _drawRoad(Canvas canvas) {
     final horizonY = GameConfig.roadHorizonY(size.y);
     final bottomWidth = GameConfig.roadWidthAtY(size.x, size.y, size.y);
@@ -257,6 +194,28 @@ class RoadComponent extends PositionComponent {
           ],
         ).createShader(Rect.fromLTWH(0, horizonY, size.x, size.y - horizonY)),
     );
+
+    final fadePaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.white.withValues(alpha: 0.75),
+          Colors.white.withValues(alpha: 0.30),
+          Colors.transparent,
+        ],
+        stops: const [0.0, 0.20, 1.0],
+      ).createShader(Rect.fromLTWH(0, horizonY, size.x, size.y * 0.20));
+
+    canvas.save();
+    canvas.clipPath(roadPath);
+
+    canvas.drawRect(
+      Rect.fromLTWH(0, horizonY, size.x, size.y * 0.20),
+      fadePaint,
+    );
+
+    canvas.restore();
   }
 
   void _drawAsphaltTexture(Canvas canvas, Path roadPath, double horizonY) {

@@ -41,9 +41,11 @@ class _VehicleSpec {
   final VehicleType type;
 }
 
-late VehicleType vehicleType;
-
 class EnemyComponent extends SpriteComponent with CollisionCallbacks {
+  late VehicleType vehicleType;
+  bool reachedRoad = false;
+
+  bool nearMissAwarded = false;
   EnemyComponent() {
     anchor = Anchor.center;
   }
@@ -62,6 +64,8 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
   static const double laneChangeDuration = 0.35;
   int currentLane = 0;
+  int? previousLane;
+  bool isOvertaking = false;
   late double _aspectRatio;
 
   static const List<_VehicleSpec> _vehicleSpecs = [
@@ -275,6 +279,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
   @override
   Future<void> onLoad() async {
+    priority = 20;
     debugPrint("Enemy Loaded");
 
     // final spec = _vehicleSpecs[random.nextInt(_vehicleSpecs.length)];
@@ -286,6 +291,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     targetSpeed = speed;
 
     sprite = await Sprite.load(spec.spritePath);
+    opacity = 0.20;
 
     final gameSize = findGame()!.size;
 
@@ -317,6 +323,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     // position.y += speed * dt;
     const double difficultyMultiplier = 1.0;
     _updateTrafficAI(dt);
+    // _tryReturnToLane();
     final roadSpeed = SpeedConfig.playerSpeed;
 
     final relativeSpeed = roadSpeed - currentSpeed;
@@ -326,18 +333,31 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         difficultyMultiplier *
         dt; // here we can decide the vehcle which direction shoult move
     _resizeForDepth();
-    position.x = _laneCenter();
-    // if (position.y > findGame()!.size.y + size.y) {
-    //   removeFromParent();
-    // }
+    final horizonY = GameConfig.roadHorizonY(findGame()!.size.y);
 
-    // if (position.y > findGame()!.size.y + size.y) {
-    //   removeFromParent();
-    // }
+    if (!reachedRoad && position.y >= horizonY) {
+      reachedRoad = true;
+
+      add(OpacityEffect.to(1.0, EffectController(duration: 0.35)));
+    }
+    position.x = _laneCenter();
+    final player = parent?.children.whereType<PlayerComponent>().firstOrNull;
+
+    if (player != null && !nearMissAwarded) {
+      final dx = (player.position.x - position.x).abs();
+      final dy = (player.position.y - position.y).abs();
+
+      if (!nearMissAwarded && dx < 60 && dy < 40) {
+        nearMissAwarded = true;
+
+        GameManager.instance.addNearMiss();
+
+        debugPrint("🔥 Near Miss | Score: ${GameManager.instance.score}");
+      }
+    }
   }
 
   void _tryLaneChange() {
-    if (isChangingLane) return;
     if (isChangingLane || laneChangeCooldown > 0) return;
 
     final enemies = parent!.children.whereType<EnemyComponent>().toList();
@@ -364,7 +384,9 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         isChangingLane = true;
         laneChangeCooldown = laneChangeDelay;
 
+        previousLane = currentLane;
         currentLane = newLane;
+        isOvertaking = true;
 
         final gameSize = findGame()!.size;
 
@@ -387,6 +409,47 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
         return;
       }
+    }
+
+    void _tryReturnToLane() {
+      if (!isOvertaking) return;
+
+      if (previousLane == null) return;
+
+      if (isChangingLane) return;
+
+      final enemies = parent!.children.whereType<EnemyComponent>();
+
+      for (final other in enemies) {
+        if (other == this) continue;
+
+        if (other.currentLane != previousLane) continue;
+
+        if ((other.position.y - position.y).abs() < 250) {
+          return;
+        }
+      }
+
+      currentLane = previousLane!;
+      previousLane = null;
+      isOvertaking = false;
+
+      final gameSize = findGame()!.size;
+
+      add(
+        MoveToEffect(
+          Vector2(
+            GameConfig.laneCenterAtY(
+              gameSize.x,
+              gameSize.y,
+              currentLane,
+              position.y,
+            ),
+            position.y,
+          ),
+          EffectController(duration: laneChangeDuration),
+        ),
+      );
     }
   }
 

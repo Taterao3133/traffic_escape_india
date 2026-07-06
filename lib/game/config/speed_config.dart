@@ -1,6 +1,6 @@
 class SpeedConfig {
   // Player Speed
-  static const double playerSpeed = 470;
+  static const double playerSpeed = 400;
 
   // Heavy Vehicles
   static const double dumpTruck = 300; // game assests_24
@@ -23,5 +23,5 @@ class SpeedConfig {
   static const double autorikshaw = 200; // game assests_09
 
   // Player / Fastest
-  static const double sports = 470; // game assests_09
+  static const double sports = 400; // game assests_09
 }

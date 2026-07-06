@@ -22,7 +22,7 @@ class EnvironmentComponent extends PositionComponent {
       _side = side ?? (random.nextBool() ? RoadSide.left : RoadSide.right),
       super();
 
-  static const double _baseScrollSpeed = 320;
+  static const double _baseScrollSpeed = 200;
   static const double _roadPadding = 8;
   static const double _screenPadding = 8;
 
@@ -34,6 +34,7 @@ class EnvironmentComponent extends PositionComponent {
 
   @override
   Future<void> onLoad() async {
+    priority = 10;
     anchor = Anchor.topLeft;
 
     treeSprite = await Sprite.load('roadside/trees_1.png');
