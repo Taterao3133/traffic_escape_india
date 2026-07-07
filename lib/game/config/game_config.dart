@@ -13,9 +13,9 @@ class GameConfig {
 
   static const double sideShoulderWidth = 48;
 
-  static const double roadHorizonRatio = 0.35; //camera view angle set
+  static const double roadHorizonRatio = 0.45; //camera view angle set
 
-  static const double roadHorizonScale = 0.40;
+  static const double roadHorizonScale = 0.50;
 
   static double roadWidth(double screenWidth) {
     final availableWidth = screenWidth - (sideShoulderWidth * 2);

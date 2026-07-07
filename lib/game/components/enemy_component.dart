@@ -56,10 +56,11 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   late double targetSpeed;
 
   static const double safeDistance = 220;
-  static const double brakeSpeed = 80;
+  static const double brakeSpeed = 20;
   bool hasCollided = false;
   bool isChangingLane = false;
   double laneChangeCooldown = 0;
+  double laneDecisionTimer = 0;
   static const double laneChangeDelay = 1.5;
 
   static const double laneChangeDuration = 0.35;
@@ -89,12 +90,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
       speed: SpeedConfig.police,
       type: VehicleType.police,
     ),
-    // _VehicleSpec(
-    //   spritePath: 'cars/game assests_10.png',
-    //   aspectRatio: 228 / 219,
 
-    //   speed: SpeedConfig.sportsPlayer,
-    // ),
     _VehicleSpec(
       spritePath: 'cars/sedanwhite.png',
       aspectRatio: 228 / 219,
@@ -313,6 +309,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
+    laneDecisionTimer += dt;
     if (laneChangeCooldown > 0) {
       laneChangeCooldown -= dt;
     }
@@ -323,10 +320,15 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     // position.y += speed * dt;
     const double difficultyMultiplier = 1.0;
     _updateTrafficAI(dt);
-    // _tryReturnToLane();
+    _tryReturnToLane();
     final roadSpeed = SpeedConfig.playerSpeed;
 
     final relativeSpeed = roadSpeed - currentSpeed;
+
+    ///dwdew
+    debugPrint(
+      "$vehicleType | speed=$currentSpeed | relative=${SpeedConfig.playerSpeed - currentSpeed}",
+    );
 
     position.y +=
         relativeSpeed *
@@ -359,6 +361,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
   void _tryLaneChange() {
     if (isChangingLane || laneChangeCooldown > 0) return;
+    if (!canChangeLane) return;
 
     final enemies = parent!.children.whereType<EnemyComponent>().toList();
 
@@ -410,47 +413,47 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         return;
       }
     }
+  }
 
-    void _tryReturnToLane() {
-      if (!isOvertaking) return;
+  void _tryReturnToLane() {
+    if (!isOvertaking) return;
 
-      if (previousLane == null) return;
+    if (previousLane == null) return;
 
-      if (isChangingLane) return;
+    if (isChangingLane) return;
 
-      final enemies = parent!.children.whereType<EnemyComponent>();
+    final enemies = parent!.children.whereType<EnemyComponent>();
 
-      for (final other in enemies) {
-        if (other == this) continue;
+    for (final other in enemies) {
+      if (other == this) continue;
 
-        if (other.currentLane != previousLane) continue;
+      if (other.currentLane != previousLane) continue;
 
-        if ((other.position.y - position.y).abs() < 250) {
-          return;
-        }
+      if ((other.position.y - position.y).abs() < 250) {
+        return;
       }
+    }
 
-      currentLane = previousLane!;
-      previousLane = null;
-      isOvertaking = false;
+    currentLane = previousLane!;
+    previousLane = null;
+    isOvertaking = false;
 
-      final gameSize = findGame()!.size;
+    final gameSize = findGame()!.size;
 
-      add(
-        MoveToEffect(
-          Vector2(
-            GameConfig.laneCenterAtY(
-              gameSize.x,
-              gameSize.y,
-              currentLane,
-              position.y,
-            ),
+    add(
+      MoveToEffect(
+        Vector2(
+          GameConfig.laneCenterAtY(
+            gameSize.x,
+            gameSize.y,
+            currentLane,
             position.y,
           ),
-          EffectController(duration: laneChangeDuration),
+          position.y,
         ),
-      );
-    }
+        EffectController(duration: laneChangeDuration),
+      ),
+    );
   }
 
   double _laneCenter() {
@@ -468,10 +471,10 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     final gameSize = findGame()!.size;
     final depthY = position.y.clamp(0.0, gameSize.y);
     final carWidth =
-        (GameConfig.laneWidthAtY(gameSize.x, gameSize.y, depthY) * 0.72).clamp(
-          52.0,
+        (GameConfig.laneWidthAtY(gameSize.x, gameSize.y, depthY) * 0.80).clamp(
+          12.0,
           150.0,
-        );
+        ); // Adjust the multiplier to control how much of the lane width the car occupies
 
     size = Vector2(carWidth, carWidth * _aspectRatio);
   }
@@ -491,9 +494,21 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         final distance = other.position.y - position.y;
 
         if (distance < safeDistance) {
-          _tryLaneChange();
+          // Too close? Match the front car speed.
+          if (distance < 80) {
+            targetSpeed = other.currentSpeed;
+            continue;
+          }
 
-          targetSpeed = min(targetSpeed, other.currentSpeed - brakeSpeed);
+          if (laneDecisionTimer >= 0.5) {
+            laneDecisionTimer = 0;
+            _tryLaneChange();
+          }
+
+          targetSpeed = max(
+            speed * 0.85,
+            min(targetSpeed, other.currentSpeed - brakeSpeed),
+          );
         }
       }
     }
