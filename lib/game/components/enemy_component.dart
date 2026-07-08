@@ -4,11 +4,13 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 //import 'package:flutter/foundation.dart';
 //import 'package:flame/flame.dart';
-import '../config/game_config.dart';
+// import '../config/game_config.dart';
 import '../managers/game_manager.dart';
 import 'player_component.dart';
 import '../config/speed_config.dart';
 import 'package:flame/effects.dart';
+import '../road/road_provider.dart';
+import '../traffic_game.dart';
 
 enum VehicleType {
   taxi,
@@ -41,7 +43,8 @@ class _VehicleSpec {
   final VehicleType type;
 }
 
-class EnemyComponent extends SpriteComponent with CollisionCallbacks {
+class EnemyComponent extends SpriteComponent
+    with HasGameReference<TrafficGame>, CollisionCallbacks, RoadProvider {
   late VehicleType vehicleType;
   bool reachedRoad = false;
 
@@ -289,15 +292,10 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     sprite = await Sprite.load(spec.spritePath);
     opacity = 0.20;
 
-    final gameSize = findGame()!.size;
+    // final gameSize = findGame()!.size;
 
     // TrafficManager already sets currentLane and position.y
-    position.x = GameConfig.laneCenterAtY(
-      gameSize.x,
-      gameSize.y,
-      currentLane,
-      position.y,
-    );
+    position.x = road.laneCenter(currentLane, position.y);
 
     _resizeForDepth();
 
@@ -326,16 +324,14 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     final relativeSpeed = roadSpeed - currentSpeed;
 
     ///dwdew
-    debugPrint(
-      "$vehicleType | speed=$currentSpeed | relative=${SpeedConfig.playerSpeed - currentSpeed}",
-    );
 
     position.y +=
         relativeSpeed *
         difficultyMultiplier *
         dt; // here we can decide the vehcle which direction shoult move
     _resizeForDepth();
-    final horizonY = GameConfig.roadHorizonY(findGame()!.size.y);
+    // final horizonY = GameConfig.roadHorizonY(findGame()!.size.y);
+    final horizonY = road.horizonY;
 
     if (!reachedRoad && position.y >= horizonY) {
       reachedRoad = true;
@@ -354,7 +350,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
         GameManager.instance.addNearMiss();
 
-        debugPrint("🔥 Near Miss | Score: ${GameManager.instance.score}");
+        // debugPrint("🔥 Near Miss | Score: ${GameManager.instance.score}");
       }
     }
   }
@@ -391,14 +387,15 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
         currentLane = newLane;
         isOvertaking = true;
 
-        final gameSize = findGame()!.size;
-
-        final targetX = GameConfig.laneCenterAtY(
-          gameSize.x,
-          gameSize.y,
-          currentLane,
-          position.y,
-        );
+        // final gameSize = findGame()!.size;
+        // final targetX
+        //          = GameConfig.laneCenterAtY(
+        //           gameSize.x,
+        //           gameSize.y,
+        //           currentLane,
+        //           position.y,
+        //         );
+        final targetX = road.laneCenter(currentLane, position.y);
 
         add(
           MoveToEffect(
@@ -438,43 +435,27 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
     previousLane = null;
     isOvertaking = false;
 
-    final gameSize = findGame()!.size;
+    // final gameSize = findGame()!.size;
 
     add(
       MoveToEffect(
-        Vector2(
-          GameConfig.laneCenterAtY(
-            gameSize.x,
-            gameSize.y,
-            currentLane,
-            position.y,
-          ),
-          position.y,
-        ),
+        Vector2(road.laneCenter(currentLane, position.y), position.y),
         EffectController(duration: laneChangeDuration),
       ),
     );
   }
 
   double _laneCenter() {
-    final gameSize = findGame()!.size;
-
-    return GameConfig.laneCenterAtY(
-      gameSize.x,
-      gameSize.y,
-      currentLane,
-      position.y.clamp(0.0, gameSize.y),
-    );
+    return road.laneCenter(currentLane, position.y.clamp(0.0, game.size.y));
   }
 
   void _resizeForDepth() {
     final gameSize = findGame()!.size;
     final depthY = position.y.clamp(0.0, gameSize.y);
-    final carWidth =
-        (GameConfig.laneWidthAtY(gameSize.x, gameSize.y, depthY) * 0.80).clamp(
-          12.0,
-          150.0,
-        ); // Adjust the multiplier to control how much of the lane width the car occupies
+    final carWidth = (road.laneWidth(depthY) * 0.80).clamp(
+      12.0,
+      150.0,
+    ); // Adjust the multiplier to control how much of the lane width the car occupies
 
     size = Vector2(carWidth, carWidth * _aspectRatio);
   }
@@ -513,7 +494,14 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
       }
     }
 
-    currentSpeed += (targetSpeed - currentSpeed) * 4 * dt;
+    const double acceleration = 40;
+    const double braking = 0;
+
+    if (currentSpeed < targetSpeed) {
+      currentSpeed = min(currentSpeed + acceleration * dt, targetSpeed);
+    } else if (currentSpeed > targetSpeed) {
+      currentSpeed = max(currentSpeed - braking * dt, targetSpeed);
+    }
   }
 
   @override
@@ -529,7 +517,7 @@ class EnemyComponent extends SpriteComponent with CollisionCallbacks {
 
       other.takeDamage();
 
-      debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
+      // debugPrint("💥 Collision! Health: ${GameManager.instance.playerHealth}");
     }
   }
 }

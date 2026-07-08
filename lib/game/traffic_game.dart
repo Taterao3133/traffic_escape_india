@@ -12,7 +12,9 @@ import 'config/game_config.dart';
 import 'managers/game_manager.dart';
 // import 'managers/spawn_manager.dart';
 import 'background/background_component.dart';
-import 'managers/coin_manager.dart';
+// import 'managers/coin_manager.dart';
+import 'road/road_geometry.dart';
+import 'road/road_service.dart';
 
 // import 'components/background_component.dart';
 import 'ui/hud.dart';
@@ -24,6 +26,7 @@ class TrafficGame extends FlameGame
         DragCallbacks,
         TapCallbacks {
   late PlayerComponent _player;
+  late RoadGeometry road;
   double _dragDistanceX = 0;
   double _dragDistanceY = 0;
   bool _swipeConsumed = false;
@@ -31,9 +34,11 @@ class TrafficGame extends FlameGame
   @override
   Future<void> onLoad() async {
     debugPrint("🎮 Traffic Escape India Started!");
-    //await add(GameManager());
-
-    await add(BackgroundComponent());
+    road = RoadGeometry(screenWidth: size.x, screenHeight: size.y);
+    RoadService.instance.geometry = RoadGeometry(
+      screenWidth: size.x,
+      screenHeight: size.y,
+    );
 
     await add(RoadComponent());
 
@@ -45,10 +50,11 @@ class TrafficGame extends FlameGame
         ),
       );
     }
+    await add(BackgroundComponent());
 
     await add(TrafficManager());
 
-    await add(CoinManager());
+    // await add(CoinManager());
 
     _player = PlayerComponent();
     await add(_player);

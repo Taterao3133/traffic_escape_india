@@ -7,9 +7,14 @@ import 'package:flutter/services.dart';
 
 import '../config/game_config.dart';
 import '../managers/game_manager.dart';
+import '../road/road_provider.dart';
 
 class PlayerComponent extends SpriteComponent
-    with HasGameReference<FlameGame>, KeyboardHandler, CollisionCallbacks {
+    with
+        HasGameReference<FlameGame>,
+        KeyboardHandler,
+        CollisionCallbacks,
+        RoadProvider {
   static const String playerSpritePath = 'cars/sportscar.png';
   static const double _spriteAspectRatio = 228 / 219;
 
@@ -17,13 +22,11 @@ class PlayerComponent extends SpriteComponent
 
   // Color playerColor = Colors.orange;
 
-  late List<double> lanePositions;
-
   @override
   Future<void> onLoad() async {
     priority = 30;
     anchor = Anchor.center;
-    lanePositions = _lanePositions();
+    final playerY = game.size.y - GameConfig.playerBottomPadding;
     final carWidth =
         (GameConfig.laneWidthAtY(
                   game.size.x,
@@ -35,10 +38,7 @@ class PlayerComponent extends SpriteComponent
     size = Vector2(carWidth, carWidth * _spriteAspectRatio);
     sprite = await Sprite.load(playerSpritePath);
 
-    position = Vector2(
-      lanePositions[currentLane],
-      game.size.y - GameConfig.playerBottomPadding,
-    );
+    position = Vector2(road.laneCenter(currentLane, playerY), playerY);
 
     add(
       RectangleHitbox(
@@ -50,12 +50,11 @@ class PlayerComponent extends SpriteComponent
   }
 
   void moveToLane() {
-    lanePositions = _lanePositions();
     removeWhere((component) => component is MoveEffect);
 
     add(
       MoveToEffect(
-        Vector2(lanePositions[currentLane], position.y),
+        Vector2(road.laneCenter(currentLane, position.y), position.y),
         EffectController(duration: GameConfig.laneChangeDuration),
       ),
     );
@@ -84,24 +83,11 @@ class PlayerComponent extends SpriteComponent
 
   void resetPlayer() {
     currentLane = 1;
-    lanePositions = _lanePositions();
+    final playerY = game.size.y - GameConfig.playerBottomPadding;
 
-    position = Vector2(
-      lanePositions[currentLane],
-      game.size.y - GameConfig.playerBottomPadding,
-    );
+    position = Vector2(road.laneCenter(currentLane, playerY), playerY);
 
     removeWhere((component) => component is MoveEffect);
-  }
-
-  List<double> _lanePositions() {
-    final y = game.size.y - GameConfig.playerBottomPadding;
-
-    return List<double>.generate(
-      GameConfig.laneCount,
-      (lane) => GameConfig.laneCenterAtY(game.size.x, game.size.y, lane, y),
-      growable: false,
-    );
   }
 
   void flashDamage() {

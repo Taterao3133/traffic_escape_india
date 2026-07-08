@@ -4,16 +4,17 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 import '../config/game_config.dart';
+import '../road/road_provider.dart';
 import '../managers/game_manager.dart';
 
-late Sprite treeSprite;
-late Sprite signSprite;
+// late Map<EnvironmentObjectType, Sprite> sprites;
+Map<EnvironmentObjectType, Sprite>? sprites;
 
-enum EnvironmentObjectType { tree, trafficSign }
+enum EnvironmentObjectType { tree, bush, rock, electricPole }
 
 enum RoadSide { left, right }
 
-class EnvironmentComponent extends PositionComponent {
+class EnvironmentComponent extends PositionComponent with RoadProvider {
   EnvironmentComponent({Random? random, RoadSide? side, double? initialY})
     : this._(random ?? Random(), side, initialY);
 
@@ -31,15 +32,24 @@ class EnvironmentComponent extends PositionComponent {
 
   late EnvironmentObjectType _type;
   RoadSide _side;
+  late double roadOffset;
 
   @override
   Future<void> onLoad() async {
     priority = 10;
-    anchor = Anchor.topLeft;
+    // anchor = Anchor.bottomCenter;
 
-    treeSprite = await Sprite.load('roadside/trees_1.png');
-    signSprite = await Sprite.load('signs/roadsign_1.png');
+    sprites ??= {
+      EnvironmentObjectType.tree: await Sprite.load('roadside/tree_1.png'),
 
+      EnvironmentObjectType.bush: await Sprite.load('roadside/bushes_1.png'),
+
+      EnvironmentObjectType.rock: await Sprite.load('roadside/rock_1.png'),
+
+      EnvironmentObjectType.electricPole: await Sprite.load(
+        'roadside/Epole_1.png',
+      ),
+    };
     _chooseObject();
 
     position.y = initialY ?? -_random.nextDouble() * findGame()!.size.y;
@@ -68,15 +78,13 @@ class EnvironmentComponent extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    switch (_type) {
-      case EnvironmentObjectType.tree:
-        treeSprite.render(canvas, size: size);
-        break;
+    // sprites![_type]!.render(canvas, size: size);
+    // canvas.drawRect(
+    //   Rect.fromLTWH(0, 0, size.x, size.y),
+    //   Paint()..color = Colors.red,
+    // );
 
-      case EnvironmentObjectType.trafficSign:
-        signSprite.render(canvas, size: size);
-        break;
-    }
+    sprites![_type]!.render(canvas, size: size);
   }
 
   void _recycle() {
@@ -92,31 +100,52 @@ class EnvironmentComponent extends PositionComponent {
   void _chooseObject() {
     final roll = _random.nextInt(100);
 
-    if (roll < 75) {
+    if (roll < 45) {
       _type = EnvironmentObjectType.tree;
       size = Vector2(90, 130);
+    } else if (roll < 70) {
+      _type = EnvironmentObjectType.bush;
+      size = Vector2(55, 45);
+    } else if (roll < 85) {
+      _type = EnvironmentObjectType.rock;
+      size = Vector2(50, 40);
     } else {
-      _type = EnvironmentObjectType.trafficSign;
-      size = Vector2(60, 90);
+      _type = EnvironmentObjectType.electricPole;
+      size = Vector2(40, 170);
     }
   }
+  // void _chooseObject() {
+  //   _type = EnvironmentObjectType.tree;
+  //   size = Vector2(120, 160);
+  // }
 
   void _placeOutsideRoad() {
-    final gameSize = findGame()!.size;
+    double minOffset;
+    double maxOffset;
 
-    final roadLeft = GameConfig.roadLeft(gameSize.x);
-    final roadRight = GameConfig.roadRight(gameSize.x);
+    switch (_type) {
+      case EnvironmentObjectType.tree:
+        minOffset = 70;
+        maxOffset = 140;
+        break;
 
-    if (_side == RoadSide.left) {
-      final maxX = roadLeft - size.x - _roadPadding;
+      case EnvironmentObjectType.bush:
+        minOffset = 25;
+        maxOffset = 60;
+        break;
 
-      position.x = _randomRange(_screenPadding, max(_screenPadding, maxX));
-    } else {
-      final minX = roadRight + _roadPadding;
-      final maxX = gameSize.x - size.x - _screenPadding;
+      case EnvironmentObjectType.rock:
+        minOffset = 15;
+        maxOffset = 40;
+        break;
 
-      position.x = _randomRange(min(minX, maxX), max(minX, maxX));
+      case EnvironmentObjectType.electricPole:
+        minOffset = 5;
+        maxOffset = 15;
+        break;
     }
+
+    roadOffset = minOffset + _random.nextDouble() * (maxOffset - minOffset);
   }
 
   void _updatePerspective() {
@@ -127,6 +156,11 @@ class EnvironmentComponent extends PositionComponent {
     final scaleValue = 0.25 + (depth * 1.35);
 
     scale = Vector2.all(scaleValue);
+    if (_side == RoadSide.left) {
+      position.x = road.roadLeft(position.y) - roadOffset;
+    } else {
+      position.x = road.roadRight(position.y) + roadOffset;
+    }
   }
 
   double _randomRange(double minValue, double maxValue) {

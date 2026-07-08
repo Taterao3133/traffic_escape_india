@@ -68,4 +68,14 @@ class GameManager {
       highSpeedActive = false;
     }
   }
+
+  double get difficulty {
+    if (distance < 1) return 1.0;
+    if (distance < 3) return 1.15;
+    if (distance < 5) return 1.30;
+    if (distance < 8) return 1.50;
+    if (distance < 12) return 1.75;
+
+    return 2.0;
+  }
 }

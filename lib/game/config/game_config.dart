@@ -9,9 +9,9 @@ class GameConfig {
 
   static const double minRoadWidth = 280;
 
-  static const double maxRoadWidth = 620;
+  static const double maxRoadWidth = 900;
 
-  static const double sideShoulderWidth = 48;
+  static const double sideShoulderWidth = 4;
 
   static const double roadHorizonRatio = 0.45; //camera view angle set
 

@@ -13,10 +13,9 @@ class BackgroundComponent extends Component {
     await super.onLoad();
 
     await add(SkyLayer());
-
+    await add(GroundLayer());
     await add(MountainLayer());
     await add(CloudLayer());
-    await add(GroundLayer());
     await add(FogLayer());
   }
 }
